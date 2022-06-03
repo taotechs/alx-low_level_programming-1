@@ -5,7 +5,7 @@
 /**
  * main - Print if number is positive, zero or negative
  *
- * return : always zero
+ * Return: Always (Success)
  */
 int main(void)
 {
@@ -15,7 +15,7 @@ int main(void)
 	n = rand() - RAND_MAX / 2;
 	if (n > 0)
 	{
-		printf("% is positive\n", n);
+		printf("%d is positive\n", n);
 	}
 	else if (n == 0)
 	{

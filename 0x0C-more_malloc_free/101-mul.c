@@ -1,126 +1,158 @@
 #include "main.h"
-#include <stdlib.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <stdlib.h>
 
 /**
- * _is_zero - determines if any number is zero
- * @argv: argument vector.
+ * main - program that multiplies two positive numbers
  *
- * Return: no return.
+ * @argc: argument count, must be 3
+ * @argv: arguments, argv[1] and argv[2]
+ *
+ * Return: product of argv[1] by argv[2]
  */
-void _is_zero(char *argv[])
+
+int main(int argc, char *argv[])
 {
-	int i, isn1 = 1, isn2 = 1;
+	char *num1, *num2;
+	int i, j, k, len1, len2, len, d1, d2, d1d2, carry, *mul;
 
-	for (i = 0; argv[1][i]; i++)
-		if (argv[1][i] != '0')
-		{
-			isn1 = 0;
-			break;
-		}
-
-	for (i = 0; argv[2][i]; i++)
-		if (argv[2][i] != '0')
-		{
-			isn2 = 0;
-			break;
-		}
-
-	if (isn1 == 1 || isn2 == 1)
+	if (argc != 3 || !(_isnumber(argv[1])) || !(_isnumber(argv[2])))
+		_error(), exit(98);
+	num1 = argv[1], num2 = argv[2];
+	len1 = _strlen(num1), len2 = _strlen(num2), len = len1 + len2;
+	mul = _calloc(len, sizeof(int));
+	if (mul == NULL)
+		exit(98);
+	for (i = len1 - 1; i >= 0; i--)
 	{
-		printf("0\n");
-		exit(0);
+		d1 = num1[i] - '0';
+		carry = 0;
+		for (j = len2 - 1; j >= 0; j--)
+		{
+			d2 = num2[j] - '0';
+			d1d2 = d1 * d2;
+			mul[i + j + 1] += d1d2 % 10;
+			carry = d1d2 / 10;
+			if (mul[i + j + 1] > 9)
+			{
+				mul[i + j] += mul[i + j + 1] / 10;
+				mul[i + j + 1] = mul[i + j + 1] % 10;
+			}
+			mul[i + j] += carry;
+		}
 	}
+	for (k = 0; mul[k] == 0 && k < len; k++)
+		;
+	if (k == len)
+		_putchar(mul[len - 1] + '0');
+	else
+	{
+		for (i = k; i < len; i++)
+			_putchar(mul[i] + '0');
+	}
+	_putchar('\n');
+	free(mul);
+	return (0);
 }
 
 /**
- * _initialize_array - set memery to zero in a new array
- * @ar: char array.
- * @lar: length of the char array.
+ * _isnumber - checks for digit-only (0 through 9) numbers
  *
- * Return: pointer of a char array.
+ * @str: parameter hard-coded in main
+ *
+ * Return: 1 or 0
  */
-char *_initialize_array(char *ar, int lar)
+
+int _isnumber(char *str)
+{
+	int i;
+
+	for (i = 0; str[i] != '\0'; i++)
+	{
+		if (str[i] < '0' || str[i] > '9')
+			return (0);
+	}
+	return (1);
+}
+
+/**
+ * _error - print error
+ * Return: void
+ */
+
+void _error(void)
+{
+	int i;
+	char error[] = "Error";
+
+	for (i = 0; i < 5; i++)
+		_putchar(error[i]);
+	_putchar('\n');
+}
+
+/**
+ * _strlen - function that returns the length of a string
+ *
+ * @s: parameter defined in main
+ *
+ * Return: length of string
+ */
+
+int _strlen(char *s)
 {
 	int i = 0;
 
-	for (i = 0; i < lar; i++)
-		ar[i] = '0';
-	ar[lar] = '\0';
-	return (ar);
-}
-
-/**
- * _checknum - determines length of the number
- * and checks if number is in base 10.
- * @argv: arguments vector.
- * @n: row of the array.
- *
- * Return: length of the number.
- */
-int _checknum(char *argv[], int n)
-{
-	int ln;
-
-	for (ln = 0; argv[n][ln]; ln++)
-		if (!isdigit(argv[n][ln]))
-		{
-			printf("Error\n");
-			exit(98);
-		}
-
-	return (ln);
-}
-
-/**
- * main - Entry point.
- * program that multiplies two positive numbers.
- * @argc: number of arguments.
- * @argv: arguments vector.
- *
- * Return: 0 - success.
- */
-int main(int argc, char *argv[])
-{
-	int ln1, ln2, lnout, add, addl, i, j, k, ca;
-	char *nout;
-
-	if (argc != 3)
-		printf("Error\n"), exit(98);
-	ln1 = _checknum(argv, 1), ln2 = _checknum(argv, 2);
-	_is_zero(argv), lnout = ln1 + ln2, nout = malloc(lnout + 1);
-	if (nout == NULL)
-		printf("Error\n"), exit(98);
-	nout = _initialize_array(nout, lnout);
-	k = lnout - 1, i = ln1 - 1, j = ln2 - 1, ca = addl = 0;
-	for (; k >= 0; k--, i--)
+	while (*s != '\0')
 	{
-		if (i < 0)
-		{
-			if (addl > 0)
-			{
-				add = (nout[k] - '0') + addl;
-				if (add > 9)
-					nout[k - 1] = (add / 10) + '0';
-				nout[k] = (add % 10) + '0';
-			}
-			i = ln1 - 1, j--, addl = 0, ca++, k = lnout - (1 + ca);
-		}
-		if (j < 0)
-		{
-			if (nout[0] != '0')
-				break;
-			lnout--;
-			free(nout), nout = malloc(lnout + 1), nout = _initialize_array(nout, lnout);
-			k = lnout - 1, i = ln1 - 1, j = ln2 - 1, ca = addl = 0;
-		}
-		if (j >= 0)
-		{
-			add = ((argv[1][i] - '0') * (argv[2][j] - '0')) + (nout[k] - '0') + addl;
-			addl = add / 10, nout[k] = (add % 10) + '0';
-		}
+		i++;
+		s++;
 	}
-	printf("%s\n", nout);
-	return (0);
+	return (i);
+}
+
+/**
+ * _calloc - function that allocates memory for an array, using malloc
+ * @nmemb: size of the memory space to allocate in bytes
+ * @size: size of type
+ * Return: void pointer
+ */
+
+void *_calloc(unsigned int nmemb, unsigned int size)
+{
+	void *ptr;
+
+	if (nmemb == 0 || size == 0)
+		return (NULL);
+
+	ptr = malloc(nmemb * size);
+	if (ptr == NULL)
+	{
+		return (NULL);
+	}
+	_memset(ptr, 0, size * nmemb);
+	return (ptr);
+}
+
+/**
+ * _memset - function that fills memory with a constant byte
+ *
+ * @s: parameter defined in main, pointer to memory area
+ * @b: parameter defined in main, constant byte
+ * @n: parameter defined in main, number of bytes to be filled
+ *
+ * Return: memory address of function (memory area)
+ */
+
+char *_memset(char *s, char b, unsigned int n)
+{
+	unsigned int i;
+	char *tmp = s;
+
+	for (i = 0; i < n; i++)
+	{
+		*s = b;
+		s++;
+	}
+	s = tmp;
+	return (s);
 }
